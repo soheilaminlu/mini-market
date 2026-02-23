@@ -1,18 +1,18 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { OrderItem } from "./orderItem.entity";
-import { User } from "./user.entity";
+import { OrderItemOrmEntity } from "./orderItem.model";
+import { UserOrmEntity } from "./user.model";
 
 
 @Entity('orders')
-export class Order {
+export class OrderOrmEntity {
     @PrimaryGeneratedColumn('uuid')
     id:string
 
      @Column({ type: 'decimal', precision: 10, scale: 2 })
     total_price:number
     
-    @OneToMany(() => OrderItem , (orderItem) => orderItem.order)
-    items: OrderItem[]
+    @OneToMany(() => OrderItemOrmEntity , (orderItem) => orderItem.order)
+    items: OrderItemOrmEntity[]
 
      @Column({type: 'uuid' , name: 'user_id'})
      user_id:string
@@ -23,7 +23,7 @@ export class Order {
      @UpdateDateColumn()
      updatedAt:Date
      
-    @ManyToOne(() => User , (user) => user.orders)
+    @ManyToOne(() => UserOrmEntity , (user) => user.orders)
     @JoinColumn({name:'user_id'})
-    user:User
+    user:UserOrmEntity
 }

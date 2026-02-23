@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Order } from "./order.entity";
-import { Product } from "./product.entity";
+import { OrderOrmEntity } from "./order.model";
+import { ProductOrmEntity } from "../product.model";
 
 
 @Entity('order_item')
 
-export class OrderItem
+export class OrderItemOrmEntity
 {
     @PrimaryGeneratedColumn('uuid')
     id:string
@@ -13,15 +13,15 @@ export class OrderItem
     @Column({type: 'uuid'})
     order_id:string
 
-    @ManyToOne(() => Order , (order) => order.items, {onDelete: 'CASCADE'})
-    order:Order
+    @ManyToOne(() => OrderOrmEntity , (order) => order.items, {onDelete: 'CASCADE'})
+    order:OrderOrmEntity
 
     @Column({type: 'uuid'})
     product_id:string
 
-    @ManyToOne(() => Product , (product) => product.orderItems)
+    @ManyToOne(() => ProductOrmEntity , (product) => product.orderItems)
     @JoinColumn({name: 'product_id'})
-    product:Product
+    product:ProductOrmEntity
 
     @Column()
     quantity:number

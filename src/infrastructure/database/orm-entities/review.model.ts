@@ -1,11 +1,11 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import {Min , Max} from 'class-validator'
-import { User } from "./user.entity";
-import { Product } from "./product.entity";
+import { UserOrmEntity } from "../user.model";
+import { ProductOrmEntity } from "./product.model";
 
 
 @Entity('reviews')
-export class Review {
+export class ReviewOrmEntity {
 
     @PrimaryGeneratedColumn('uuid')
     id: string
@@ -18,14 +18,14 @@ export class Review {
     @Column({ type: 'uuid' , name: 'user_id' })
     user_id: string
 
-    @ManyToOne(() => User, (user) => user.reviews)
+    @ManyToOne(() => UserOrmEntity, (user) => user.reviews)
     @JoinColumn({name: 'user_id'})
-    user: User
+    user: UserOrmEntity
 
     @Column({type:'uuid' , name:'product_id'})
     product_id: string
 
-    @ManyToOne(() => Product, (product) => product.reviews)
+    @ManyToOne(() => ProductOrmEntity, (product) => product.reviews)
     @JoinColumn({name:'product_id'})
-    product: Product
+    product: ProductOrmEntity
 }

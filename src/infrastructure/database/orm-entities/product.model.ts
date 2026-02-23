@@ -1,11 +1,11 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Review } from "./review.entity";
-import { OrderItem } from "./orderItem.entity";
-import { Order } from "./order.entity";
+import { ReviewOrmEntity } from "../review.model";
+import { OrderItemOrmEntity } from "./orderItem.model";
+import { OrderOrmEntity } from "./order.model";
 
 
 @Entity('products')
-export class Product {
+export class ProductOrmEntity {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
@@ -27,9 +27,9 @@ export class Product {
     @UpdateDateColumn()
     updated_at:Date
 
-    @OneToMany(() => Review , (review) => review.product)
-    reviews:Review[]
+    @OneToMany(() => ReviewOrmEntity , (review) => review.product)
+    reviews:ReviewOrmEntity[]
 
-    @OneToMany(() => OrderItem , (orderItem) => orderItem.product)
-    orderItems:OrderItem[]
+    @OneToMany(() => OrderItemOrmEntity , (orderItem) => orderItem.product)
+    orderItems:OrderItemOrmEntity[]
 }
