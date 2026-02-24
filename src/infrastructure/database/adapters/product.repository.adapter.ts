@@ -3,6 +3,7 @@ import { ProductRepositoryPorts } from "src/core/ports/product.port";
 import { Repository } from "typeorm";
 import { ProductOrmEntity } from "../orm-entities/product.model";
 import { InjectRepository } from "@nestjs/typeorm";
+import { InternalServerErrorException } from "@nestjs/common";
 
 
 
@@ -12,17 +13,43 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
         this.repo = repo
     }
 
-    save(product: Product): Promise<void> {
-        throw new Error("Method not implemented.");
+    async save(product: Product): Promise<void> {
+        try {
+         const productEntity = this.maptoOrm(product)
+         await this.repo.save(productEntity)
+        } catch (error) {
+           throw new InternalServerErrorException(`failed to save product ${error.message}`);
+        }
     }
-    getAllProducts(): Promise<Product[] | []> {
-        throw new Error("Method not implemented.");
+    async getAllProducts(): Promise<Product[] | []> {
+        try {
+            const products = await this.repo.find()
+            return products
+        } catch (error) {
+            throw new InternalServerErrorException(`failed to find products list ${error.message}`);
+        } 
     }
-    getProductById(id: string): Promise<Product | null> {
-        throw new Error("Method not implemented.");
+    async getProductById(id: string): Promise<Product | null> {
+        try {
+            const product = await this.repo.findOne(
+                { where: { id } }
+            )
+            return product || null
+        } catch (error) {
+            throw new InternalServerErrorException(`failed to find product ${error.message}`);
+        }
     }
-    deleteProductById(id: string): Promise<boolean> {
-        throw new Error("Method not implemented.");
+    async deleteProductById(id: string): Promise<boolean> {
+        try {
+            const product = await this.repo.findOne({ where: { id } })
+            if (!product) {
+                return false
+            }
+            await this.repo.remove(product)
+            return true
+        } catch (error) {
+            throw new InternalServerErrorException(`failed to delete product ${error.message}`);
+        }
     }
 
     private maptoOrm(product: Product): ProductOrmEntity {

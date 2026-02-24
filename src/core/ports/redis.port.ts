@@ -5,4 +5,4 @@ export interface RedisRepositoryPort {
     exists(key: string): Promise<boolean>
 }
 
-export const REDIS_REPOSITORY_PORT = 'REDIS_REPOSITORY_PORT'
+export const REDIS_REPOSITORY = Symbol('REDIS_REPOSITORY')

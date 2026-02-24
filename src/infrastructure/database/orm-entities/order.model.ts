@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrderItemOrmEntity } from "./orderItem.model";
 import { UserOrmEntity } from "./user.model";
 
@@ -13,7 +13,8 @@ export class OrderOrmEntity {
     
     @OneToMany(() => OrderItemOrmEntity , (orderItem) => orderItem.order)
     items: OrderItemOrmEntity[]
-
+     
+     @Index()
      @Column({type: 'uuid' , name: 'user_id'})
      user_id:string
 
