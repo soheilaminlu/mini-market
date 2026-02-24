@@ -1,6 +1,7 @@
-import { Order } from "../domain/Order" 
+import { Order } from "../domain/order" 
 
 export interface OrderRepositoryPort {
     save(order: Order) : Promise<void>
-    createOrder() : Promise<boolean>
+    getOrderById(id:string) : Promise<Order | null>
+    getOrdersByUserId(id:string) : Promise<Order[] | []>
 }

@@ -1,6 +1,5 @@
 
-import { Product } from "../domain/Product"
-
+import { Product } from "../domain/product" 
 
 export interface ProductRepositoryPorts {
     save(product:Product) : Promise<void>

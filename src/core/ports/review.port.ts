@@ -1,6 +1,7 @@
-import { Review } from "../domain/Review"
+import { Review } from "../domain/review" 
 
 export interface ReviewRepositoryPort {
     save(review: Review): Promise<void>
-    findByProductId(productId: string): Promise<Review[]>
+    getAllReviewsByProductId(productId: string): Promise<Review[]>
+    getAllReviewsFromUser(id:string) : Promise<Review[]>
 }

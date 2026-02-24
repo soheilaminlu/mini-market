@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { ReviewOrmEntity } from "../review.model";
+import { ReviewOrmEntity } from "./review.model";
 import { OrderItemOrmEntity } from "./orderItem.model";
 import { OrderOrmEntity } from "./order.model";
 

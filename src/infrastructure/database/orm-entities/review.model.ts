@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import {Min , Max} from 'class-validator'
-import { UserOrmEntity } from "../user.model";
+import { UserOrmEntity } from "./user.model";
 import { ProductOrmEntity } from "./product.model";
 
 
