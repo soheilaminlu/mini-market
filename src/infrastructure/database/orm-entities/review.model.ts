@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import {Min , Max} from 'class-validator'
 import { UserOrmEntity } from "./user.model";
 import { ProductOrmEntity } from "./product.model";
@@ -15,6 +15,9 @@ export class ReviewOrmEntity {
     @Max(5, { message: 'max rate is 5' })
     rating: number
 
+    @Column()
+    comment:string
+
     @Column({ type: 'uuid' , name: 'user_id' })
     user_id: string
 
@@ -28,4 +31,7 @@ export class ReviewOrmEntity {
     @ManyToOne(() => ProductOrmEntity, (product) => product.reviews)
     @JoinColumn({name:'product_id'})
     product: ProductOrmEntity
+
+    @CreateDateColumn()
+    createdAt:Date
 }

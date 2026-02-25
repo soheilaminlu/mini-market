@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { PRODUCT_REPOSITORY } from "src/core/ports/product.port";
-import { OrderRepositoryAdapter } from "../adapters/order.repository.adapter";
-import { ProductRepositoryAdapter } from "../adapters/product.repository.adapter";
+import { OrderRepositoryAdapter } from "../database/adapters/order.repository.adapter";
+import { ProductRepositoryAdapter } from "../database/adapters/product.repository.adapter";
 
 @Module({
    providers: [{

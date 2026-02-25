@@ -4,9 +4,7 @@ import { Product } from "./product"
 export type OrderItemDomainModel = {
   id:string
   order_id:string
-  order:Order
   product_id:string,
-  product:Product
   price_snapShot:number
   quantity:number
 }
@@ -17,9 +15,6 @@ export class OrderItem {
   constructor(props: OrderItemDomainModel) {
     this.props = props
   }
-  getId() : string {
-    return this.props.id
-  }
   addQuantity(newQuantity:number) {
     if(newQuantity <= 0) {
      throw new Error("Invalid Quantity")
@@ -28,6 +23,19 @@ export class OrderItem {
   }
    getTotalPrice() : number {
     return this.props.quantity * this.props.price_snapShot
+  }
+
+   getId() : string {
+    return this.props.id
+  }
+  getProductId() : string {
+    return this.props.product_id
+  }
+  getPriceSnapShot() : number {
+    return this.props.price_snapShot
+  }
+  getQuantity() : number {
+    return this.props.quantity;
   }
 
 }

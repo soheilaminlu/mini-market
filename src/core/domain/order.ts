@@ -19,8 +19,8 @@ export class Order {
         this.props = props
     }
 
-    calculateTotalPrice() {
-        this.props.total_price = this.props.items.reduce((sum , i) => sum + i.getTotalPrice(), 0)
+    calculateTotalPrice() : number {
+       return this.props.total_price = this.props.items.reduce((sum , i) => sum + i.getTotalPrice(), 0)
     }
 
     addItem(item:OrderItem) {
@@ -28,7 +28,19 @@ export class Order {
         this.calculateTotalPrice()
     }
     deleteItem(item_id:string) {
-        this.props.items.filter(i => i.getId() !== item_id)
+        this.props.items = this.props.items.filter(i => i.getId() !== item_id)
         this.calculateTotalPrice()
+    }
+    getId() : string {
+        return this.props.id
+    }
+    getCreatedAt() : Date {
+        return this.props.created_at
+    }
+    getItems(): OrderItem[] {
+        return this.props.items
+    }
+    getUserId() : string {
+       return this.props.userId
     }
 }

@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import {ConfigModule , ConfigService} from "@nestjs/config"
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { UserOrmEntity } from "../orm-entities/user.model";
-import { ProductOrmEntity } from "../orm-entities/product.model";
-import { OrderOrmEntity } from "../orm-entities/order.model";
-import { ReviewOrmEntity } from "../orm-entities/review.model";
+import { UserOrmEntity } from "../database/orm-entities/user.model";
+import { ProductOrmEntity } from "../database/orm-entities/product.model";
+import { OrderOrmEntity } from "../database/orm-entities/order.model";
+import { ReviewOrmEntity } from "../database/orm-entities/review.model";
 
 @Module({
     imports:[

@@ -65,10 +65,10 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
 
     async save(product: Product): Promise<void> {
         try {
-         const productEntity = this.maptoOrm(product)
-         await this.repo.save(productEntity)
+            const productEntity = this.mapToOrm(product)
+            await this.repo.save(productEntity)
         } catch (error) {
-           throw new InternalServerErrorException(`failed to save product ${error.message}`);
+            throw new InternalServerErrorException(`failed to save product ${error.message}`);
         }
     }
 
@@ -109,8 +109,13 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
             throw new InternalServerErrorException(`failed to delete product ${error.message}`);
         }
     }
-    private maptoOrm(product: Product): ProductOrmEntity {
+    private mapToOrm(product: Product): ProductOrmEntity {
         const productOrm = new ProductOrmEntity()
+        productOrm.id = product.getId()
+        productOrm.title = product.getTitle()
+        productOrm.price = product.getPrice()
+        productOrm.stock = product.getStock()
+        productOrm.is_active = product.getIsActive()
         return productOrm
     }
 
@@ -138,5 +143,4 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
         const sortType: 'ASC' | 'DESC' = sort?.sort_type ?? 'DESC'
         qb.orderBy(sortField, sortType)
     }
-
 }

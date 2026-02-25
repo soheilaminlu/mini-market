@@ -21,21 +21,45 @@ export class ReviewRepositoryAdapter implements ReviewRepositoryPort {
     async getAllReviewsByProductId(product_id: string): Promise<Review[] | []> {
         try {
             const reviewsByProductId = await this.repo.find({ where: { product_id: product_id } })
-            return reviewsByProductId
+            return reviewsByProductId.map(r => this.mapToDomain(r))
         } catch (error) {
             throw new InternalServerErrorException(`failed to get all reviews ${error.message}`);
         }
     }
     async getAllReviewsFromUser(user_id: string): Promise<Review[] | []> {
         try {
-            const reviewByUser = await this.repo.find({ where: { user_id: user_id } })
-            return reviewByUser
+            const reviewOrms = await this.repo.createQueryBuilder('review')
+                .where('review.user_id = :user_id', { user_id })
+                .orderBy('review.createdAt', 'DESC')
+                .getMany()
+
+            if (!reviewOrms.length) return []
+            return reviewOrms.map(r => this.mapToDomain(r))
+
         } catch (error) {
-            throw new InternalServerErrorException(`failed to get all reviews ${error.message}`);
+            throw new InternalServerErrorException(`Failed to get all reviews for user: ${error.message}`)
         }
     }
     private mapToOrm(review: Review): ReviewOrmEntity {
-        const reviewEntity = new ReviewOrmEntity()
-        return reviewEntity
+        const reviewOrm = new ReviewOrmEntity()
+
+        reviewOrm.id = review.getId()
+        reviewOrm.rating = review.getRating()
+        reviewOrm.user_id = review.getUserId()
+        reviewOrm.product_id = review.getProductId()
+        reviewOrm.comment = review.getComment()
+        reviewOrm.createdAt = review.getCreatedAt()
+        return reviewOrm
+    }
+
+    private mapToDomain(reviewOrm: ReviewOrmEntity): Review {
+        return new Review({
+            id: reviewOrm.id,
+            rating: reviewOrm.rating,
+            userId: reviewOrm.user_id,
+            productId: reviewOrm.product_id,
+            comment: reviewOrm.comment,
+            createdAt: reviewOrm.createdAt,
+        })
     }
 }

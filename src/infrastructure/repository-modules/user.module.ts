@@ -1,5 +1,5 @@
 import { USER_REPOSITORY } from "src/core/ports/user.port";
-import { UserRepositoryAdapter } from "../adapters/user.repository.adapter";
+import { UserRepositoryAdapter } from "../database/adapters/user.repository.adapter";
 import { Module } from "@nestjs/common";
 
 
@@ -9,6 +9,7 @@ import { Module } from "@nestjs/common";
     provide: USER_REPOSITORY,
     useClass: UserRepositoryAdapter
    }],
+   
    exports: [USER_REPOSITORY]
 })
 export class UserRepositoryModule {}

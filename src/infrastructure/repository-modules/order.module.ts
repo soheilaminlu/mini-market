@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { OrderRepositoryAdapter } from "../adapters/order.repository.adapter";
+import { OrderRepositoryAdapter } from "../database/adapters/order.repository.adapter";
 import { ORDER_REPOSITORY } from "src/core/ports/order.port";
 
 
@@ -9,6 +9,6 @@ import { ORDER_REPOSITORY } from "src/core/ports/order.port";
     provide: ORDER_REPOSITORY,
     useClass: OrderRepositoryAdapter
    }],
-   exports: [ORDER_REPOSITORY]
+   exports: [ORDER_REPOSITORY],
 })
 export class OrderRepositoryModule {}

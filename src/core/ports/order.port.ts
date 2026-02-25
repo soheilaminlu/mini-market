@@ -8,6 +8,5 @@ export interface OrderRepositoryPort {
     save(order: Order) : Promise<void>
     getOrderById(id:string) : Promise<Order | null>
     getOrdersByUserId(id:string) : Promise<Order[] | []>
-    getOrderWithItems(id:string) : Promise<OrderItem[] | []>
 }
 

@@ -1,4 +1,4 @@
-import { User } from "../domain/user"
+import { User } from "../domain/user" 
 
 export const USER_REPOSITORY = Symbol('USER_REPOSITORY')
 
