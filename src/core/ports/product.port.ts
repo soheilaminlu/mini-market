@@ -36,8 +36,7 @@ export interface ProductPaginationOptions {
 
 export interface ProductPaginationMeta {
     page: number;          
-    limit: number;         
-    total: number;         
+    limit: number;                 
     filtered_total: number; 
     total_pages: number;  
     has_next: boolean; 
@@ -58,8 +57,8 @@ export interface ProductRepositoryPorts {
         pagination: ProductPaginationOptions,
         filter:ProductFilterOptions,
         sort:ProductSortOptions
-    )
-    getProductById(id:string) : Promise<Product | null>
+    ) : Promise<ProductPaginationResult>
+    getProductById(id:string) : Promise<ProductListItems | null>
     deleteProductById(id:string) : Promise<boolean>
     save(product: Product): Promise<void>
 }

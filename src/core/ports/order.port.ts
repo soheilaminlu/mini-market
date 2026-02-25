@@ -1,5 +1,6 @@
 import { promises } from "dns"
-import { Order, OrderItem } from "../domain/order" 
+import { Order } from "../domain/order" 
+import { OrderItem } from "../domain/orderItem"
 
 export const ORDER_REPOSITORY = Symbol('ORDER_REPOSITORY')
 

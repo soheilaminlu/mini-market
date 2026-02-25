@@ -27,7 +27,7 @@ export class ProductOrmEntity {
     @UpdateDateColumn()
     updated_at:Date
 
-    @OneToMany(() => ReviewOrmEntity , (review) => review.product)
+    @OneToMany(() => ReviewOrmEntity , (review) => review.product, {cascade:true , onDelete:'CASCADE'})
     reviews:ReviewOrmEntity[]
 
     @OneToMany(() => OrderItemOrmEntity , (orderItem) => orderItem.product)
