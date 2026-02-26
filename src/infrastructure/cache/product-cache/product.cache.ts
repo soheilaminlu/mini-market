@@ -25,7 +25,6 @@ export class ProductRedisCache {
     }
     async getProductByIdIfExist(productId: string): Promise<ProductListItems | null> {
         const cacheKey = `products:item:${productId}`
-
         try {
             const cached = await this.cacheRepository.get(cacheKey)
             if (!cached) return null
@@ -36,11 +35,17 @@ export class ProductRedisCache {
         }
     }
     async setProductById(productId: string, product: ProductListItems, ttl = 300): Promise<void> {
-        const cacheKey = `products:item:${productId}`
+        const cacheKey = productId
         try {
             await this.cacheRepository.set(cacheKey, JSON.stringify(product), ttl)
         } catch (error) {
             console.error(`Redis set failed for key ${cacheKey}:`, error)
         }
+    }
+    async InvalidateProductList(cacheKey: string) {
+        await this.cacheRepository.invalidateList(cacheKey)
+    }
+    async InvalidateProductById(cacheKey: string) {
+        await this.cacheRepository.invalidateOne(cacheKey)
     }
 }

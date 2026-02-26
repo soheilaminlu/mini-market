@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, Delete, Get, Param, Query } from "@nestjs/common";
 import { DeleteProductUseCase } from "src/appliacation/product-usecases/delete.product.usecase";
 import { GetProductByIdUseCase } from "src/appliacation/product-usecases/get.product.usecase";
 import { GetAllProductUseCases } from "src/appliacation/product-usecases/get.products.usecase";
@@ -46,5 +46,11 @@ export class ProductControllers {
     async getById(@Param('id') id: string): Promise<ProductListItems> {
         const product = await this.getbyId.execute(id);
         return product
+    }
+    @Delete(':id')
+    @ApiOperation({ summary: 'Delete Product by ID' })
+    @ApiResponse({ status: 200, description: 'Product deleted successfully' })
+    async deleteProduct(@Param('id') id: string) {
+        await this.delProduct.execute(id);
     }
 }

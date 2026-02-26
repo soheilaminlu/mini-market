@@ -6,6 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { SelectQueryBuilder } from "typeorm/browser";
 import { ProductRedisCache } from "src/infrastructure/cache/product-cache/product.cache";
+import { json } from "stream/consumers";
 
 @Injectable()
 export class ProductRepositoryAdapter implements ProductRepositoryPorts {
@@ -19,7 +20,7 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
         : Promise<ProductPaginationResult> {
         try {
             const { page, limit } = pagination
-            const cacheKey = `products:page=${page}:limit=${limit}:filter=${JSON.stringify(filter)}:sort=${JSON.stringify(sort)}`
+            const cacheKey = `products:list:page=${page}:limit=${limit}:filter=${JSON.stringify(filter)}:sort=${JSON.stringify(sort)}`
             const cacheResult = await this.redis.getAllProductsIfExist(cacheKey)
             if (cacheResult != null) {
                 return cacheResult
@@ -63,7 +64,7 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
                     sort
                 }
             }
-            await this.redis.setAllProducts(cacheKey, result, 300)
+            await this.redis.setAllProducts(cacheKey, result , 300)
             return result
         } catch (error) {
             throw new InternalServerErrorException(`Failed to fetch products: ${error.message}`);
@@ -79,6 +80,10 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
     }
 
     async getProductById(id: string): Promise<ProductListItems | null> {
+        const cachedData = await this.redis.getProductByIdIfExist(id)
+        if (cachedData != null) {
+            return cachedData
+        }
         const product = await this.repo.createQueryBuilder('product')
             .leftJoin('product.reviews', 'review')
             .addSelect('COALESCE(AVG(review.rating), 0)', 'averageRating')
@@ -92,7 +97,8 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
         }
         const p = product.entities[0]
         const raw = product.raw[0]
-        return {
+
+        const response: ProductListItems = {
             id: p.id,
             title: p.title,
             price: p.price,
@@ -102,6 +108,8 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
             averageRating: Number(raw.averageRating) || 0,
             totalReviews: Number(raw.totalReviews) || 0
         }
+        await this.redis.setProductById(p.id, response)
+        return response
     }
     async deleteProductById(id: string): Promise<boolean> {
         try {
@@ -110,6 +118,7 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
                 return false
             }
             await this.repo.remove(product)
+            await this.redis.InvalidateProductById(id)
             return true
         } catch (error) {
             throw new InternalServerErrorException(`failed to delete product ${error.message}`);

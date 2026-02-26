@@ -23,9 +23,9 @@ export class Product {
     constructor(props: ProductDomainModel) {
         this.props = {...props}
     }
-    calculateScore(avrageRating: number, reviewCounts: number): number {
+    calculateScore(averageRating: number, reviewCounts: number): number {
         const date_since_creation = (Date.now() - this.props.created_at.getTime()) / (1000 * 60 * 60 * 24)
-        const score = (avrageRating + Math.log(reviewCounts + 1)) / (date_since_creation + 1)
+        const score = (averageRating + Math.log(reviewCounts + 1)) / (date_since_creation + 1)
         return score
     }
     isAvailable(): boolean {

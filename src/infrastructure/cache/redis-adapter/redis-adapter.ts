@@ -57,4 +57,16 @@ export class RedisAdapter implements RedisRepositoryPort {
             throw new Error("redis Exist Check Operation failed", { cause: error })
         }
     }
+    async invalidateList(cacheKey: string) {
+        const keys = await this.client.keys(cacheKey)
+        if (keys.length) {
+            await this.client.del(keys)
+        }
+    }
+    async invalidateOne(cacheKey: string) {
+        const value = await this.client.get(cacheKey)
+        if (value != null) {
+            await this.client.del(cacheKey)
+        }
+    }
 }
