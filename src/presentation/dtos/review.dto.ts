@@ -3,3 +3,13 @@ export class CreateReviewDto {
     rating:number
     comment:string
 }
+
+
+export class ReviewResponseDto {
+    id: string;
+    productId: string;
+    userId: string;
+    rating: number;
+    comment: string;
+    createdAt: Date;
+}

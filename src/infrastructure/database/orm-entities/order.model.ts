@@ -6,20 +6,20 @@ import { UserOrmEntity } from "./user.model";
 @Entity('orders')
 export class OrderOrmEntity {
     @PrimaryGeneratedColumn('uuid')
-    id:string
+    id: string
 
-     @Column({ type: 'decimal', precision: 10, scale: 2 })
-    total_price:number
-    
-    @OneToMany(() => OrderItemOrmEntity , (orderItem) => orderItem.order)
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    total_price: number
+
+    @OneToMany(() => OrderItemOrmEntity, (orderItem) => orderItem.order, { cascade: true })
     items: OrderItemOrmEntity[]
-     
-     @Index()
-     @Column({type: 'uuid' , name: 'user_id'})
-     user_id:string
 
-     @CreateDateColumn()
-     createdAt:Date
+    @Index()
+    @Column({ type: 'uuid', name: 'user_id' })
+    user_id: string
+
+    @CreateDateColumn()
+    createdAt: Date
      
      @UpdateDateColumn()
      updatedAt:Date

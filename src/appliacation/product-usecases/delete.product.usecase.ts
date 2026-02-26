@@ -1,10 +1,10 @@
-import { InternalServerErrorException } from "@nestjs/common";
-import { ProductRepositoryPorts } from "src/core/ports/product.port";
+import { Inject, InternalServerErrorException } from "@nestjs/common";
+import { PRODUCT_REPOSITORY, type ProductRepositoryPorts } from "src/core/ports/product.port";
 
 
 export class DeleteProductUseCase {
     private readonly repository: ProductRepositoryPorts
-    constructor(repository:ProductRepositoryPorts) {
+    constructor(@Inject(PRODUCT_REPOSITORY) repository:ProductRepositoryPorts) {
         this.repository = repository   
     }
     async execute(id:string) {

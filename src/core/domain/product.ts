@@ -8,10 +8,20 @@ export type ProductDomainModel = {
     updated_at: Date;
 }
 
+export type ProductDomainDTO = {
+  id: string;
+  title: string;
+  price: number;
+  stock: number;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+};
+
 export class Product {
-    private readonly props: ProductDomainModel
+     readonly props: ProductDomainModel
     constructor(props: ProductDomainModel) {
-        this.props = props
+        this.props = {...props}
     }
     calculateScore(avrageRating: number, reviewCounts: number): number {
         const date_since_creation = (Date.now() - this.props.created_at.getTime()) / (1000 * 60 * 60 * 24)
@@ -40,20 +50,7 @@ export class Product {
     getId(): string {
         return this.props.id
     }
-
-    getTitle(): string {
-        return this.props.title
-    }
-
-    getPrice(): number {
-        return this.props.price
-    }
-
-    getStock(): number {
-        return this.props.stock
-    }
-
-    getIsActive(): boolean {
-        return this.props.is_active
-    }
+    toDTO(): ProductDomainDTO {
+    return { ...this.props };
+  }
 } 

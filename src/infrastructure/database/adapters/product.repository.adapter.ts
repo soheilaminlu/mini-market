@@ -3,27 +3,32 @@ import { ProductFilterOptions, ProductListItems, ProductPaginationOptions, Produ
 import { Repository } from "typeorm";
 import { ProductOrmEntity } from "../orm-entities/product.model";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import { Inject, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { SelectQueryBuilder } from "typeorm/browser";
-
+import { ProductRedisCache } from "src/infrastructure/cache/product-cache/product.cache";
 
 @Injectable()
 export class ProductRepositoryAdapter implements ProductRepositoryPorts {
     private readonly repo: Repository<ProductOrmEntity>
-    constructor(@InjectRepository(ProductOrmEntity) repo: Repository<ProductOrmEntity>) {
+    private readonly redis: ProductRedisCache
+    constructor(@InjectRepository(ProductOrmEntity) repo: Repository<ProductOrmEntity>, @Inject() redis: ProductRedisCache) {
         this.repo = repo
+        this.redis = redis
     }
-
     async getAllProducts(pagination: ProductPaginationOptions, filter: ProductFilterOptions, sort: ProductSortOptions)
         : Promise<ProductPaginationResult> {
         try {
             const { page, limit } = pagination
+            const cacheKey = `products:page=${page}:limit=${limit}:filter=${JSON.stringify(filter)}:sort=${JSON.stringify(sort)}`
+            const cacheResult = await this.redis.getAllProductsIfExist(cacheKey)
+            if (cacheResult != null) {
+                return cacheResult
+            }
             const skip = (page - 1) * limit
-
             const queryBuilder = this.repo.createQueryBuilder('product')
                 .leftJoin('product.reviews', 'review')
-                .addSelect('AVG(review.rating)', 'rating')
-                .addSelect('COUNT(reviews.id)', 'totalReviews')
+                .addSelect('COALESCE(AVG(review.rating), 0)', 'averageRating')
+                .addSelect('COUNT(review.id)', 'totalReviews')
                 .groupBy('product.id')
 
             this.applyFilters(queryBuilder, filter)
@@ -40,10 +45,10 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
                 price: product.price,
                 stock: product.stock,
                 is_active: product.is_active,
-                averageRating: Number(products.raw[index].rating) || 0,
+                averageRating: Number(products.raw[index].averageRating) || 0,
                 totalReviews: Number(products.raw[index].totalReviews) || 0
             }));
-            return {
+            const result: ProductPaginationResult = {
                 data: listItems,
                 pagination: {
                     page,
@@ -54,15 +59,16 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
                     filtered_total: totalItems,
                 },
                 applied: {
-                    filter: filter,
-                    sort: sort
+                    filter,
+                    sort
                 }
             }
+            await this.redis.setAllProducts(cacheKey, result, 300)
+            return result
         } catch (error) {
             throw new InternalServerErrorException(`Failed to fetch products: ${error.message}`);
         }
     }
-
     async save(product: Product): Promise<void> {
         try {
             const productEntity = this.mapToOrm(product)
@@ -74,9 +80,9 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
 
     async getProductById(id: string): Promise<ProductListItems | null> {
         const product = await this.repo.createQueryBuilder('product')
-            .leftJoinAndSelect('product.reviews', 'review')
-            .addSelect('AVG(review.rating)', 'avrageRating')
-            .addSelect('COUNT(review.count)')
+            .leftJoin('product.reviews', 'review')
+            .addSelect('COALESCE(AVG(review.rating), 0)', 'averageRating')
+            .addSelect('COUNT(review.id)', 'totalReviews')
             .where('product.id = :id', { id })
             .groupBy('product.id')
             .getRawAndEntities()
@@ -111,11 +117,12 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
     }
     private mapToOrm(product: Product): ProductOrmEntity {
         const productOrm = new ProductOrmEntity()
-        productOrm.id = product.getId()
-        productOrm.title = product.getTitle()
-        productOrm.price = product.getPrice()
-        productOrm.stock = product.getStock()
-        productOrm.is_active = product.getIsActive()
+        const prodcuctDomainDto = product.toDTO()
+        productOrm.id = prodcuctDomainDto.id
+        productOrm.title = prodcuctDomainDto.title
+        productOrm.price = prodcuctDomainDto.price
+        productOrm.stock = prodcuctDomainDto.stock
+        productOrm.is_active = product.isAvailable()
         return productOrm
     }
 
@@ -124,10 +131,12 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
             qb.andWhere('product.price > :minprice', { minprice: filter.minPrice })
         }
         if (filter.maxPrice !== undefined) {
-            qb.andWhere('product.price <= maxprice', { maxprice: filter.maxPrice })
+            qb.andWhere('product.price <= :maxprice', { maxprice: filter.maxPrice })
         }
         if (filter.minRating !== undefined) {
-            qb.having('AVG(product.rating) >= minrating', { minrating: filter.minRating })
+            qb.having('COALESCE(AVG(review.rating),0) >= :minRating', {
+                minRating: filter.minRating,
+            });
         }
         if (filter?.is_active !== undefined) {
             qb.andWhere('product.is_active = :active', { active: filter.is_active })
@@ -137,7 +146,7 @@ export class ProductRepositoryAdapter implements ProductRepositoryPorts {
         const sortFieldMap: Record<ProductSortType, string> = {
             newest: 'product.created_at',
             price: 'product.price',
-            rating: 'AVG(product.rating)'
+            rating: 'averageRating'
         }
         const sortField = sortFieldMap[sort.sort_by ?? 'newest']
         const sortType: 'ASC' | 'DESC' = sort?.sort_type ?? 'DESC'

@@ -6,7 +6,6 @@ export const ORDER_REPOSITORY = Symbol('ORDER_REPOSITORY')
 
 export interface OrderRepositoryPort {
     save(order: Order) : Promise<void>
-    getOrderById(id:string) : Promise<Order | null>
-    getOrdersByUserId(id:string) : Promise<Order[] | []>
+    getOrdersByUserId(user_id:string) : Promise<Order[] | []>
 }
 

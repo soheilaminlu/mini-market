@@ -1,21 +1,20 @@
-import { InternalServerErrorException } from "@nestjs/common";
-import { Product } from "src/core/domain/product";
-import { ProductRepositoryPorts } from "src/core/ports/product.port"
+import { Inject, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { PRODUCT_REPOSITORY, ProductListItems, type ProductRepositoryPorts } from "src/core/ports/product.port"
 
 export class GetProductByIdUseCase {
     private readonly repository: ProductRepositoryPorts
-    constructor(repository: ProductRepositoryPorts) {
+    constructor(@Inject(PRODUCT_REPOSITORY) repository: ProductRepositoryPorts) {
         this.repository = repository
     }
-    async execute(id: string) {
+    async execute(id: string) : Promise<ProductListItems> {
         try {
             const product = await this.repository.getProductById(id)
             if (product == null) {
-                return;
+                throw new NotFoundException("Not Found Product")
             }
             return product
         } catch (error) {
-            throw new InternalServerErrorException(`Failed to get products: ${error.message}`)
+            throw new InternalServerErrorException(`Failed to get product: ${error.message}`)
         }
     }
 }

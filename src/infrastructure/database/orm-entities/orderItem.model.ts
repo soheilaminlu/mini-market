@@ -4,7 +4,6 @@ import { ProductOrmEntity } from "./product.model";
 
 
 @Entity('order_item')
-
 export class OrderItemOrmEntity
 {
     @PrimaryGeneratedColumn('uuid')
@@ -13,8 +12,9 @@ export class OrderItemOrmEntity
     @Column({type: 'uuid'})
     order_id:string
 
-    @ManyToOne(() => OrderOrmEntity , (order) => order.items, {onDelete: 'CASCADE'})
-    order:OrderOrmEntity
+    @ManyToOne(() => OrderOrmEntity, (order) => order.items)
+    @JoinColumn({ name: 'order_id' })
+    order: OrderOrmEntity;
 
     @Column({type: 'uuid'})
     product_id:string

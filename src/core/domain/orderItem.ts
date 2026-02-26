@@ -9,11 +9,18 @@ export type OrderItemDomainModel = {
   quantity:number
 }
 
+export type OrderItemDomainDto = {
+  id:string
+  order_id:string
+  product_id:string,
+  price_snapShot:number
+  quantity:number
+}
 
 export class OrderItem {
   private readonly props : OrderItemDomainModel
   constructor(props: OrderItemDomainModel) {
-    this.props = props
+    this.props = {...props}
   }
   addQuantity(newQuantity:number) {
     if(newQuantity <= 0) {
@@ -21,21 +28,11 @@ export class OrderItem {
     }
     this.props.quantity += newQuantity
   }
-   getTotalPrice() : number {
+   toDTO() : OrderItemDomainDto {
+    return {...this.props}
+   }
+    getTotalPrice() : number {
     return this.props.quantity * this.props.price_snapShot
-  }
-
-   getId() : string {
-    return this.props.id
-  }
-  getProductId() : string {
-    return this.props.product_id
-  }
-  getPriceSnapShot() : number {
-    return this.props.price_snapShot
-  }
-  getQuantity() : number {
-    return this.props.quantity;
   }
 
 }

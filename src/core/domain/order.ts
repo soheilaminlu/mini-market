@@ -7,16 +7,19 @@ export type OrderDomainModel = {
     total_price: number
     created_at: Date
 }
-export enum OrderStatus {
-    pending = 'pending',
-    recieved = 'recieved',
-    rejected ='rejected'
+
+export type OrderDtoDomain = {
+    id: string
+    userId: string
+    items: OrderItem[]
+    total_price: number
+    created_at: Date
 }
 
 export class Order {
     private readonly props : OrderDomainModel
     constructor(props: OrderDomainModel) {
-        this.props = props
+        this.props = {...props}
     }
 
     calculateTotalPrice() : number {
@@ -28,19 +31,10 @@ export class Order {
         this.calculateTotalPrice()
     }
     deleteItem(item_id:string) {
-        this.props.items = this.props.items.filter(i => i.getId() !== item_id)
+        this.props.items = this.props.items.filter(i => i.toDTO().id !== item_id)
         this.calculateTotalPrice()
     }
-    getId() : string {
-        return this.props.id
-    }
-    getCreatedAt() : Date {
-        return this.props.created_at
-    }
-    getItems(): OrderItem[] {
-        return this.props.items
-    }
-    getUserId() : string {
-       return this.props.userId
+    toDto() : OrderDtoDomain {
+        return {...this.props}
     }
 }

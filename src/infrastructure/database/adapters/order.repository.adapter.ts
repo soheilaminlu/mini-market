@@ -10,34 +10,33 @@ import { OrderItemOrmEntity } from "../orm-entities/orderItem.model";
 @Injectable()
 export class OrderRepositoryAdapter implements OrderRepositoryPort {
     private readonly repo: Repository<OrderOrmEntity>
-    constructor(@InjectRepository(OrderOrmEntity) repo: Repository<OrderOrmEntity>) {
+    private readonly itemRepo: Repository<OrderItemOrmEntity>
+    constructor(@InjectRepository(OrderOrmEntity) repo: Repository<OrderOrmEntity>,
+        @InjectRepository(OrderItemOrmEntity) itemRepo: Repository<OrderItemOrmEntity>) {
         this.repo = repo
+        this.itemRepo = itemRepo
     }
     async save(order: Order): Promise<void> {
         try {
             const entity = this.mapToOrm(order)
             await this.repo.save(entity)
+            if (entity.items && entity.items.length > 0) {
+                for (const item of entity.items) {
+                    item.order_id = entity.id,
+                        item.order = entity
+                }
+                await this.itemRepo.save(entity.items)
+            }
         } catch (error) {
             throw new InternalServerErrorException(`Failed to save Order Entity: ${error.message}`)
-        }
-    }
-    async getOrderById(id: string): Promise<Order | null> {
-        try {
-            const order = await this.repo.findOne({ where: { id } })
-            if (order == null) {
-                return null
-            }
-            return this.mapToDomain(order)
-        } catch (error) {
-            throw new InternalServerErrorException(`Failed to find Order Entity by id: ${error.message}`)
         }
     }
     async getOrdersByUserId(user_id: string): Promise<Order[] | []> {
         try {
             const orders = await this.repo.createQueryBuilder('order')
                 .leftJoinAndSelect('order.items', 'items')
-                .where('order.user_id :user_id', { user_id: user_id })
-                .orderBy('order.created_at', 'DESC')
+                .where('order.user_id = :user_id', { user_id: user_id })
+                .orderBy('order.createdAt', 'DESC')
                 .getMany()
             if (!orders.length) {
                 return []
@@ -49,24 +48,23 @@ export class OrderRepositoryAdapter implements OrderRepositoryPort {
     }
     private mapToOrm(order: Order): OrderOrmEntity {
         const orderOrm = new OrderOrmEntity()
-
-        orderOrm.id = order.getId()
-        orderOrm.user_id = order.getUserId()
+        const orderDomainDto = order.toDto()
+        orderOrm.id = orderDomainDto.id
+        orderOrm.user_id = orderDomainDto.userId
         orderOrm.total_price = order.calculateTotalPrice()
-        orderOrm.createdAt = order.getCreatedAt()
+        orderOrm.createdAt = orderDomainDto.created_at
 
-        orderOrm.items = order.getItems().map(item => {
+        orderOrm.items = orderDomainDto.items.map(item => {
             const itemOrm = new OrderItemOrmEntity()
-
-            itemOrm.id = item.getId()
-            itemOrm.quantity = item.getQuantity()
-            itemOrm.price_snapshot = item.getPriceSnapShot()
-            itemOrm.product_id = item.getProductId()
+            const itemDto = item.toDTO()
+            itemOrm.id = itemDto.id
+            itemOrm.quantity = itemDto.quantity
+            itemOrm.price_snapshot = itemDto.price_snapShot
+            itemOrm.product_id = itemDto.product_id
+            itemOrm.order_id = itemDto.order_id
             itemOrm.order = orderOrm
-
             return itemOrm
         })
-
         return orderOrm
     }
     private mapToDomain(orderOrm: OrderOrmEntity): Order {
@@ -79,7 +77,6 @@ export class OrderRepositoryAdapter implements OrderRepositoryPort {
                 quantity: itemOrm.quantity
             })
         })
-
         const order = new Order({
             id: orderOrm.id,
             userId: orderOrm.user_id,
@@ -87,7 +84,6 @@ export class OrderRepositoryAdapter implements OrderRepositoryPort {
             total_price: orderOrm.total_price,
             created_at: orderOrm.createdAt
         })
-
         return order
     }
 }

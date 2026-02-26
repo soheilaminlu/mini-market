@@ -1,4 +1,4 @@
-import { ProductRepositoryModule } from "src/infrastructure/repository-modules/product.module";
+import { ProductRepositoryModule } from "src/infrastructure/orm-modules/product.module";
 import { ProductControllers } from "src/presentation/controlletrs/product.controllers";
 import { GetAllProductUseCases } from "../product-usecases/get.products.usecase";
 import { GetProductByIdUseCase } from "../product-usecases/get.product.usecase";
@@ -10,4 +10,4 @@ import { Module } from "@nestjs/common";
     controllers: [ProductControllers],
     providers: [GetAllProductUseCases, GetProductByIdUseCase , DeleteProductUseCase],
 })
-export class OrderModule { }
+export class ProductModule {}

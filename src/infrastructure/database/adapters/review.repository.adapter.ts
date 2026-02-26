@@ -8,7 +8,7 @@ import { InternalServerErrorException } from "@nestjs/common";
 export class ReviewRepositoryAdapter implements ReviewRepositoryPort {
     private readonly repo: Repository<ReviewOrmEntity>
     constructor(@InjectRepository(ReviewOrmEntity) repo: Repository<ReviewOrmEntity>) {
-        this.repo = this.repo
+        this.repo = repo
     }
     async save(review: Review): Promise<void> {
         try {
@@ -42,13 +42,13 @@ export class ReviewRepositoryAdapter implements ReviewRepositoryPort {
     }
     private mapToOrm(review: Review): ReviewOrmEntity {
         const reviewOrm = new ReviewOrmEntity()
-
-        reviewOrm.id = review.getId()
-        reviewOrm.rating = review.getRating()
-        reviewOrm.user_id = review.getUserId()
-        reviewOrm.product_id = review.getProductId()
-        reviewOrm.comment = review.getComment()
-        reviewOrm.createdAt = review.getCreatedAt()
+        const reviewDomainDto = review.toDto()
+        reviewOrm.id = reviewDomainDto.id
+        reviewOrm.rating = reviewDomainDto.rating
+        reviewOrm.user_id = reviewDomainDto.userId
+        reviewOrm.product_id = reviewDomainDto.productId
+        reviewOrm.comment = reviewDomainDto.comment
+        reviewOrm.createdAt = reviewDomainDto.createdAt
         return reviewOrm
     }
 

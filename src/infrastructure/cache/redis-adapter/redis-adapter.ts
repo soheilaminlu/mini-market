@@ -4,7 +4,6 @@ import { RedisRepositoryPort } from "src/core/ports/redis.port";
 
 @Injectable()
 export class RedisAdapter implements RedisRepositoryPort {
-
     private readonly client: Redis
     constructor() {
         this.client = new Redis({
